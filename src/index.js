@@ -21,11 +21,12 @@ mongoose.connect(MONGO_URI)
   console.error('Error connecting to MongoDB:', err);
   })
 
-// Connect to Redis
 
+// Connect to Redis
 const redisClient = createClient({
   url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
 });
+
 redisClient
   .on('error', (err) => console.error('Redis Client Error', err))
   .on('connect', () => console.log('Connected to Redis'))
@@ -51,11 +52,11 @@ app.get('/photos', async (req, res) => {
 
     if (cachedPhotos) {
       // If the photos are in Redis, send them to the client
-      console.log('Photos found in Redis');
-      return res.json(JSON.parse(cachedPhotos));
+      // console.log('Photos found in Redis');
+      return res.json({status: 'success', data: { photos: JSON.parse(cachedPhotos)}});
     } else {
       // If the photos are not in Redis, fetch them from the API
-      console.log('Photos not found in Redis, fetching from API');
+      // console.log('Photos not found in Redis, fetching from API');
       const response = await axios.get('https://jsonplaceholder.typicode.com/photos');
       const photos = response.data;
 
@@ -66,7 +67,7 @@ app.get('/photos', async (req, res) => {
       });
 
       // Send the photos to the client
-      return res.json(photos);
+      return res.json({status: 'success', data: { photos }});
     }
   } catch (error) {
     console.error(error);
